@@ -3,5 +3,5 @@ from parsing.parsing_constants import WEATHER_PAGE
 
 parser = WeatherParser(WEATHER_PAGE)
 
-print(parser.parse_today_weather_fully())
-
+for weather in parser.parse_7_days_info():
+    print(weather)
