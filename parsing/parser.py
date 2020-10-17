@@ -4,10 +4,12 @@ import re
 from bs4 import BeautifulSoup
 from .DayWeatherInfo import DayWeatherShortInfo, DayWeatherFullInfo
 
+from parsing.parsing_constants import WEATHER_PAGE
+
 
 class WeatherParser:
-    def __init__(self, url, city='чернигов'):
-        self.html_page = requests.get(url + city.lower()).text
+    def __init__(self, city='чернигов'):
+        self.html_page = requests.get(WEATHER_PAGE + city.lower()).text
         self.soup = BeautifulSoup(self.html_page, features="html.parser")
         self.region = self.soup.find('div', class_='currentRegion').text
 

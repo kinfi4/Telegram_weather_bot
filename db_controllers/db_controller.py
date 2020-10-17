@@ -40,9 +40,13 @@ class DB_Handler:
         with self.connection:
             self.cursor.execute(f'INSERT INTO users (user_id, subscribe) VALUES (?,?)', (user_id, status)).commit()
 
-    def update_user(self, user_id, status):
+    def update_user_status(self, user_id, status):
         with self.connection:
             self.cursor.execute(f'UPDATE users SET subscribe = ? WHERE user_id = ?', (status, user_id)).commit()
+
+    def update_user_city(self, user_id, city):
+        with self.connection:
+            self.cursor.execute(f'update users set city = ? where user_id = ?', (city, user_id)).commit()
 
     def close(self):
         self.connection.close()
