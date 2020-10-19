@@ -17,8 +17,8 @@ class DB_Handler:
         try:
             connection = pypyodbc.connect(
                 'Driver={' + DRIVER + '};'
-                'Server=' + SERVER + ';'
-                'Database=' + DATABASE + ';'
+                                      'Server=' + SERVER + ';'
+                                                           'Database=' + DATABASE + ';'
             )
             return connection
 
@@ -29,24 +29,30 @@ class DB_Handler:
 
     def get_subscribers(self):
         with self.connection:
-            return self.cursor.execute('SELECT * FROM users WHERE subscribe = 1').fetchall()
+            return self.cursor.execute('SELECT * FROM bot_users WHERE status = 1').fetchall()
 
     def subscriber_exist(self, user_id):
         with self.connection:
-            data = self.cursor.execute(f'SELECT * FROM users WHERE user_id = ?', (user_id,)).fetchall()
+            data = self.cursor.execute(f'SELECT * FROM bot_users WHERE user_id = ?', (user_id,)).fetchall()
             return len(data) > 0
 
-    def add_subscriber(self, user_id, status=True):
+    def add_subscriber(self, user_id, city, status=True):
         with self.connection:
-            self.cursor.execute(f'INSERT INTO users (user_id, subscribe) VALUES (?,?)', (user_id, status)).commit()
+            self.cursor.execute(f'INSERT INTO bot_users (user_id, status, city) VALUES (?,?,?)',
+                                (user_id, status, city)).commit()
+
+    def get_user_city(self, user_id):
+        with self.connection:
+            data = self.cursor.execute(f'SELECT city FROM bot_users WHERE user_id = ?', (user_id,)).fetchall()
+            return data[0][0]
 
     def update_user_status(self, user_id, status):
         with self.connection:
-            self.cursor.execute(f'UPDATE users SET subscribe = ? WHERE user_id = ?', (status, user_id)).commit()
+            self.cursor.execute(f'UPDATE bot_users SET status = ? WHERE user_id = ?', (status, user_id)).commit()
 
     def update_user_city(self, user_id, city):
         with self.connection:
-            self.cursor.execute(f'update users set city = ? where user_id = ?', (city, user_id)).commit()
+            self.cursor.execute(f'update bot_users set city = ? where user_id = ?', (city, user_id)).commit()
 
     def close(self):
         self.connection.close()
@@ -57,4 +63,6 @@ if __name__ == '__main__':
     # db.add_subscriber('Hell')
     # db.update_user('132123123', False)
     print(db.get_subscribers())
-    print(db.subscriber_exist('428404849'))
+    print(db.get_user_city('428404849'))
+
+    # 428404849
