@@ -44,7 +44,11 @@ class DB_Handler:
     def get_user_city(self, user_id):
         with self.connection:
             data = self.cursor.execute(f'SELECT city FROM bot_users WHERE user_id = ?', (user_id,)).fetchall()
-            return data[0][0]
+
+            if data:
+                return data[0][0]
+            else:
+                return
 
     def update_user_status(self, user_id, status):
         with self.connection:

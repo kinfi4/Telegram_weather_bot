@@ -63,13 +63,18 @@ async def unsubscribe(message: types.Message):
         db.update_user_status(user_id, False)
 
     await message.answer('You successfully unsubscribe from weather forecast'
-                         '\n\n!!  In order to subscribe enter /subscribe  !!')
+                         '\n\n!!  In order to subscribe for a everyday forecast enter /subscribe  !!')
 
 
 @dp.message_handler(commands=['weather'])
 async def get_todays_weather(message: types.Message):
     user_id = str(message.from_user.id)
     city = db.get_user_city(user_id)
+
+    if not city:
+        await bot.send_message(user_id, f'You are not registered anywhere.\nType /change_city to change your location')
+        return
+
     parser = WeatherParser(city)
 
     w_i = parser.parse_day_weather_shortly()
@@ -93,6 +98,11 @@ async def get_todays_full_weather(message: types.Message):
 async def week_forecast(message: types.Message):
     user_id = str(message.from_user.id)
     city = db.get_user_city(user_id)
+
+    if not city:
+        await bot.send_message(user_id, f'You are not registered anywhere.\nType /change_city to change your location')
+        return
+
     parser = WeatherParser(city)
     info = parser.parse_7_days_info()
     answer = f'Forecast for {info[0].day}/{info[0].month} -- {info[-1].day}/{info[-1].month}\n\n'
@@ -107,6 +117,11 @@ async def week_forecast(message: types.Message):
 async def tomorrow_weather(message: types.Message):
     user_id = str(message.from_user.id)
     city = db.get_user_city(user_id)
+
+    if not city:
+        await bot.send_message(user_id, f'You are not registered anywhere.\nType /change_city to change your location')
+        return
+
     parser = WeatherParser(city, str(datetime.date.today() + datetime.timedelta(days=1)))
     info = parser.parse_day_weather_fully()
 
@@ -121,7 +136,10 @@ async def tomorrow_weather(message: types.Message):
 @dp.message_handler(commands='city')
 async def get_city(message: types.Message):
     city = db.get_user_city(str(message.from_user.id))
-    await message.answer(f'You are registered in {city.capitalize()}.\nType /change_city to change your location')
+    if city:
+        await message.answer(f'You are registered in {city.capitalize()}.\nType /change_city to change your location')
+    else:
+        await message.answer(f'You are not registered anywhere.\nType /change_city to change your location')
 
 
 @dp.message_handler()
@@ -146,13 +164,18 @@ async def handle_all_info(message: types.Message):
                 f'You successfully subscribe for weather forecast in {message.text.capitalize()} - {parser.region}'
                 f'\nType \\help in order to find out bot`s capabilities'
                 f'\nYou will get forecast every day at 8am'
-                f'\n\n!!  In order to unsubscribe enter /unsubscribe  !!')
+                f'\n\n!!  In order to unsubscribe from a everyday forecast enter /unsubscribe  !!')
     else:
         await message.answer('I m not actually a human, don`t talk to me with no purpose')
 
 
 async def send_full_weather(user_id):
     city = db.get_user_city(user_id)
+
+    if not city:
+        await bot.send_message(user_id, f'You are not registered anywhere.\nType /change_city to change your location')
+        return
+
     parser = WeatherParser(city)
 
     w_i = parser.parse_day_weather_fully()
